@@ -1,0 +1,75 @@
+-- Code your design here
+library IEEE;
+use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity bcd is
+	port(clk:in std_logic;
+    	rst: in std_logic;
+        we: in std_logic;
+        d_in: in std_logic_vector(3 downto 0);
+        d_out: out std_logic_vector(3 downto 0));
+end entity bcd;
+
+architecture arch of bcd is
+begin
+process(clk, rst, we)
+	variable current: std_logic_vector(3 downto 0);
+    variable dva: bit;
+    begin
+    
+    if rst = '1' then
+    	current := "0000";
+    	dva := '0';
+    elsif clk'event and clk='1' then
+    	dva := not dva;
+        if dva = '1' then 
+        	if we = '1' then 
+            	current := d_in;
+            else
+        		current := std_logic_vector((unsigned(current) + '1') mod 16);
+            end if;
+        end if;
+    end if;
+    d_out <= current;
+    end process;
+end architecture arch;
+
+-- Code your testbench here
+library IEEE;
+use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity tb is
+end entity;
+
+architecture tb of tb is
+	signal clk: std_logic := '0';
+    signal rst, we: std_logic := '0';
+    signal din, dout: std_logic_vector(3 downto 0);
+begin
+    DUT: entity work.bcd(arch) 
+        port map(
+            clk => clk,
+            rst => rst,
+            we => we,
+            d_in => din,
+            d_out => dout
+        );
+
+    clk <= not clk after 2ns;
+
+    stimulus: process
+    begin
+        rst <= '1';
+        wait for 2ns;
+        rst <= '0';
+        din <= "1101";
+        we <= '1';
+        wait for 6ns;
+        we <= '0';
+        wait for 10ns;
+    end process stimulus;
+end architecture tb;
+        
+        
