@@ -1,0 +1,33 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
+
+entity memorija is
+port( WE: IN std_logic;
+	  clk: in std_logic;
+      addr: in std_logic;
+      data : in std_logic_vector(7 downto 0);
+      Q: out std_logic_vector(7 downto 0)
+      );
+end entity memorija;
+
+architecture arch of memorija is
+	type ram_mem_type is array(255 downto 0) of std_logic_vector(7 downto 0);
+    signal rammem: ram_mem_type;
+    begin
+    
+    process(clk)
+    	variable addrtemp: integer range 255 to 0;
+        begin
+        	if( clk'event and clk='1') then
+            	addrtemp := conv_integer(addr);
+                if(WE = '1') then
+                	rammem(addrtemp) <= data;
+				end if;
+                Q <= rammem(addrtemp);
+            end if;
+    end process;
+end architecture arch;
+
+ 
